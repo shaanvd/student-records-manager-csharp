@@ -22,6 +22,29 @@ namespace StudentRecords.App.Services
 
         public IReadOnlyList<Student> GetAll() => _students.AsReadOnly();
 
+        public IReadOnlyList<Student> SearchByName(string partialName)
+        {
+            if (string.IsNullOrWhiteSpace(partialName))
+                return GetAll();
+
+            var results = _students.Where(s => s.Name.Contains(partialName, StringComparison.OrdinalIgnoreCase));
+
+            return results.ToList().AsReadOnly();
+        }
+
+        public IReadOnlyList<Student> GetStudentsSorted(string sortBy)
+        {
+            var sortedResults = sortBy.ToLower() switch
+            {
+                "name" => _students.OrderBy(s => s.Name),
+                "age" => _students.OrderBy(s => s.Age),
+                "course" => _students.OrderBy(s => s.Course),
+                _ => _students.OrderBy(s => s.Id) 
+            };
+
+            return sortedResults.ToList().AsReadOnly();
+        }
+
         public Student GetById(int id)
         {
             return _students.FirstOrDefault(s => s.Id == id)

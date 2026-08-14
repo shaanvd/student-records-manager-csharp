@@ -16,10 +16,12 @@ while (true)
     Console.WriteLine("====================================");
     Console.WriteLine("1. Add student");
     Console.WriteLine("2. List students");
-    Console.WriteLine("3. Find student");
+    Console.WriteLine("3. Find student by ID");
     Console.WriteLine("4. Update student");
     Console.WriteLine("5. Delete student");
-    Console.WriteLine("6. Exit");
+    Console.WriteLine("6. Search by partial name"); 
+    Console.WriteLine("7. List students sorted");   
+    Console.WriteLine("8. Exit");                   
     Console.Write("Choice: ");
 
     string choice = Console.ReadLine() ?? string.Empty;
@@ -33,7 +35,9 @@ while (true)
             case "3": FindStudent(service); break;
             case "4": UpdateStudent(service); break;
             case "5": DeleteStudent(service); break;
-            case "6": return;
+            case "6": SearchPartialName(service); break; // NEW
+            case "7": ListStudentsSorted(service); break; // NEW
+            case "8": return; // UPDATED
             default: Console.WriteLine("Invalid menu option."); break;
         }
     } 
@@ -120,4 +124,26 @@ static void DeleteStudent(StudentService service)
     int id = ReadInt("Student ID: ");
     service.DeleteStudent(id);
     Console.WriteLine("Student deleted.");
+}
+
+static void SearchPartialName(StudentService service)
+{
+    string query = ReadRequired("Enter name (or part of name) to search: ");
+    var results = service.SearchByName(query);
+
+    Console.WriteLine("\nID    Name                 Age   Course");
+    Console.WriteLine(new string('-', 55));
+
+    if (results.Count == 0) Console.WriteLine("No students found.");
+    foreach (var student in results) Console.WriteLine(student);
+}
+
+static void ListStudentsSorted(StudentService service)
+{
+    string sortBy = ReadRequired("Sort by (type 'name', 'age', or 'course'): ");
+    var results = service.GetStudentsSorted(sortBy);
+
+    Console.WriteLine("\nID    Name                 Age   Course");
+    Console.WriteLine(new string('-', 55));
+    foreach (var student in results) Console.WriteLine(student);
 }
