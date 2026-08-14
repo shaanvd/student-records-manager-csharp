@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using StudentRecords.App.Models;
@@ -12,15 +13,15 @@ namespace StudentRecords.App.Repositories
 
         public JsonStudentRepository(string filePath)
         {
-            _filepath = filePath;
+            _filePath = filePath;
         }
 
-        public List<Student> getAll()
+        public List<Student> GetAll()
         {
             if (!File.Exists(_filePath))
                 return new List<Student>();
 
-            string json = File.ReadAllText(_filepath);
+            string json = File.ReadAllText(_filePath);
             return JsonSerializer.Deserialize<List<Student>>(json)
                 ?? new List<Student>();
         }
