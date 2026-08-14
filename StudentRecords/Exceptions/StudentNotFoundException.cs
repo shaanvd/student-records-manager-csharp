@@ -4,7 +4,12 @@ using System.Text;
 
 namespace StudentRecords.App.Exceptions
 {
-    internal class StudentNotFoundException
+    public class StudentNotFoundException : Exception
     {
+        public StudentNotFoundException(int id)
+        : base($"Student with ID {id} was not found.")
+        {
+        }
+
     }
 }
