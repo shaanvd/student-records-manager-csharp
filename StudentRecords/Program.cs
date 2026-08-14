@@ -43,7 +43,7 @@ while (true)
     }
     catch (ArgumentException ex)
     {
-        Console.WriteLine($"Validation error: {ex.Message}")
+        Console.WriteLine($"Validation error: {ex.Message}");
     }
     catch (InvalidOperationException ex)
     {
