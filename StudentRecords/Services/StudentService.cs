@@ -46,6 +46,17 @@ namespace StudentRecords.App.Services
             Save();
         }
 
+        public void UpdateStudent(int id, string name, int age, string course)
+        {
+            Validate(id, name, age, course);
+            Student student = GetById(id);
+
+            student.Name = name.Trim();
+            student.Age = age;
+            student.Course = course.Trim();
+            Save();
+        }
+
         public void DeleteStudent(int id)
         {
             Student student = GetById(id);
