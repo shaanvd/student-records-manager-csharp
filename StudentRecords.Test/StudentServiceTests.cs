@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using StudentRecords.App.Exceptions;
 using StudentRecords.App.Services;
+using StudentRecords.App.Repositories;
 
 namespace StudentRecords.Tests;
 
@@ -12,7 +13,7 @@ public class StudentServiceTests
     [SetUp]
     public void SetUp()
     {
-        _service = new StudentService(new InMemoryStudentRepository());
+        _service = new StudentService(new InMemoryStudentRepository(), new DummyLogger());
     }
 
     [Test]
@@ -62,5 +63,21 @@ public class StudentServiceTests
         _service.AddStudent(1, "Maya", 22, "Testing");
         _service.DeleteStudent(1);
         Assert.That(_service.GetAll(), Is.Empty);
+    }
+
+    [TestCase("")]
+    [TestCase("   ")]
+    public void AddStudent_InvalidName_ThrowsArgumentException(string invalidName)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            _service.AddStudent(99, invalidName, 20, "Computer Science"));
+    }
+
+    [TestCase("")]
+    [TestCase("   ")]
+    public void AddStudent_InvalidCourse_ThrowsArgumentException(string invalidCourse)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            _service.AddStudent(100, "Valid Name", 20, invalidCourse));
     }
 }

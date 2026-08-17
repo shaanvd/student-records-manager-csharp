@@ -2,10 +2,13 @@
 using StudentRecords.App.Services;
 using StudentRecords.App.Repositories;
 using System.Xml;
+using StudentRecords.App.Logging;
 
-IStudentRepository repository =
-    new JsonStudentRepository(Path.Combine("Data", "students.json"));
-StudentService service = new StudentService(repository);
+IStudentRepository repository = new CsvStudentRepository(Path.Combine("Data", "students.csv"));
+
+ILogger logger = new FileLogger(Path.Combine("Data", "system_logs.txt"));
+
+StudentService service = new StudentService(repository, logger);
 
 while (true)
 {

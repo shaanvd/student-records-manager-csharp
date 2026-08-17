@@ -1,19 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace StudentRecords.App.Models
+namespace StudentRecords.App.Models;
+
+public class Student : Person, IValidatable
 {
-    public class Student
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public int Age { get; set; }
-        public string Course { get; set; } = string.Empty;
+    public int Id { get; set; }
+    public string Course { get; set; } = string.Empty;
 
-        public override string ToString()
-        {
-            return $"{Id,-5} {Name,-20} {Age,-5} {Course}";
-        }
+    public void Validate()
+    {
+        if (Id <= 0)
+            throw new ArgumentOutOfRangeException(nameof(Id), "ID must be positive.");
+        if (string.IsNullOrWhiteSpace(Name))
+            throw new ArgumentException("Name is required.", nameof(Name));
+        if (Age < 16 || Age > 120)
+            throw new ArgumentOutOfRangeException(nameof(Age), "Age must be between 16 and 120.");
+        if (string.IsNullOrWhiteSpace(Course))
+            throw new ArgumentException("Course is required.", nameof(Course));
+    }
+
+    public override string ToString()
+    {
+        return $"{Id,-5} {Name,-20} {Age,-5} {Course}";
     }
 }
