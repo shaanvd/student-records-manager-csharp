@@ -4,3 +4,9 @@ StudentRecords/obj
 StudentRecords.Test/bin
 StudentRecords.Test/obj
 Data/
+StudentRecords.Api/bin/
+StudentRecords.Api/obj/
+*.csproj.user
+StudentRecords.Api/Data/*.csv
+StudentRecords.Api/Data/*.json
+StudentRecords.Api/Data/*.txt
