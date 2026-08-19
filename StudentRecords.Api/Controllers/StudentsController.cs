@@ -17,10 +17,26 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public IActionResult GetAll([FromQuery] string search = "", [FromQuery] string sortBy = "id")
     {
-        var students = _service.GetAll();
-        return Ok(students);
+        return Ok(_service.GetStudents(search, sortBy));
+    }
+
+    [HttpGet("summary")]
+    public IActionResult GetSummary()
+    {
+        return Ok(_service.GetCourseSummary());
+    }
+
+    [HttpGet("export")]
+    public IActionResult ExportCsv()
+    {
+        var students = _service.GetStudents();
+        var csvLines = new List<string> { "Id,Name,Email,Age,Course" };
+        csvLines.AddRange(students.Select(s => $"{s.Id},{s.Name},{s.Email},{s.Age},{s.Course}"));
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(string.Join("\n", csvLines));
+        return File(bytes, "text/csv", "students_export.csv");
     }
 
     [HttpGet("{id}")]
@@ -42,7 +58,7 @@ public class StudentsController : ControllerBase
     {
         try
         {
-            _service.AddStudent(request.Id, request.Name, request.Age, request.Course);
+            _service.AddStudent(request.Id, request.Name, request.Age, request.Course, request.Email);
             return CreatedAtAction(nameof(GetById), new { id = request.Id }, request);
         }
         catch (ArgumentException ex)
@@ -60,7 +76,7 @@ public class StudentsController : ControllerBase
     {
         try
         {
-            _service.UpdateStudent(id, request.Name, request.Age, request.Course);
+            _service.UpdateStudent(id, request.Name, request.Age, request.Course, request.Email);
             return NoContent();
         }
         catch (StudentNotFoundException ex)
@@ -94,4 +110,5 @@ public class StudentRequest
     public string Name { get; set; } = string.Empty;
     public int Age { get; set; }
     public string Course { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
 }

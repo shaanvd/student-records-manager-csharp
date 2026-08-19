@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace StudentRecords.App.Exceptions
+namespace StudentRecords.App.Exceptions;
+
+public class StudentNotFoundException : Exception
 {
-    public class StudentNotFoundException : Exception
+    public StudentNotFoundException(string message) : base(message)
     {
-        public StudentNotFoundException(int id)
-        : base($"Student with ID {id} was not found.")
-        {
-        }
-
     }
 }

@@ -1,15 +1,25 @@
 ﻿const apiUrl = '/api/students';
 let editingStudentId = null;
 
-async function loadStudents() {
-    try {
-        const response = await fetch(apiUrl);
-        const students = await response.json();
+async function updateView() {
+    const search = document.getElementById('searchInput').value;
+    const sort = document.getElementById('sortSelect').value;
 
-        window.studentData = students;
+    try {
+        const response = await fetch(`${apiUrl}?search=${encodeURIComponent(search)}&sortBy=${sort}`);
+        window.studentData = await response.json();
         renderStudents(window.studentData);
+
+        const summaryResponse = await fetch(`${apiUrl}/summary`);
+        const summaryData = await summaryResponse.json();
+
+        const summaryList = document.getElementById('summaryList');
+        summaryList.innerHTML = '';
+        for (const [course, count] of Object.entries(summaryData)) {
+            summaryList.innerHTML += `<li><strong>${course}:</strong> ${count} student(s)</li>`;
+        }
     } catch (error) {
-        console.error(error);
+        console.error('Error updating view:', error);
     }
 }
 
@@ -18,14 +28,14 @@ function renderStudents(studentsToRender) {
     list.innerHTML = '';
 
     if (studentsToRender.length === 0) {
-        list.innerHTML = '<li>No students match your search.</li>';
+        list.innerHTML = '<li>No students match your criteria.</li>';
         return;
     }
 
     studentsToRender.forEach(s => {
         list.innerHTML += `
             <li>
-                <span><strong>ID ${s.id}:</strong> ${s.name} (${s.age} yrs) - ${s.course}</span>
+                <span><strong>ID ${s.id}:</strong> ${s.name} (${s.age} yrs) <br> <small>${s.email}</small> - ${s.course}</span>
                 <div>
                     <button onclick="editStudent(${s.id})" style="background:#ffc107; color:#000; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:5px;">Edit</button>
                     <button class="delete-btn" onclick="deleteStudent(${s.id})">Delete</button>
@@ -35,17 +45,8 @@ function renderStudents(studentsToRender) {
     });
 }
 
-document.getElementById('searchInput').addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-
-    const filteredStudents = window.studentData.filter(s =>
-        s.name.toLowerCase().includes(searchTerm) ||
-        s.course.toLowerCase().includes(searchTerm) ||
-        s.id.toString().includes(searchTerm)
-    );
-
-    renderStudents(filteredStudents);
-});
+document.getElementById('searchInput').addEventListener('input', updateView);
+document.getElementById('sortSelect').addEventListener('change', updateView);
 
 function editStudent(id) {
     const student = window.studentData.find(s => s.id === id);
@@ -53,6 +54,7 @@ function editStudent(id) {
         document.getElementById('id').value = student.id;
         document.getElementById('id').disabled = true;
         document.getElementById('name').value = student.name;
+        document.getElementById('email').value = student.email;
         document.getElementById('age').value = student.age;
         document.getElementById('course').value = student.course;
 
@@ -80,6 +82,7 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
     const data = {
         id: parseInt(document.getElementById('id').value),
         name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
         age: parseInt(document.getElementById('age').value),
         course: document.getElementById('course').value
     };
@@ -94,7 +97,6 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
         if (response.ok) {
             cancelEdit();
             loadStudents();
-            document.getElementById('searchInput').value = '';
         } else {
             alert('Error updating student.');
         }
@@ -108,10 +110,9 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
         if (response.ok) {
             document.getElementById('studentForm').reset();
             loadStudents();
-            document.getElementById('searchInput').value = '';
         } else {
             const errText = await response.text();
-            alert(errText);
+            alert('Error: ' + errText);
         }
     }
 });
@@ -130,4 +131,5 @@ async function deleteStudent(id) {
     }
 }
 
+// Initial Data Load
 loadStudents();

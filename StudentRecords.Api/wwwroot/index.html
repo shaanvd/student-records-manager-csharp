@@ -12,8 +12,9 @@
 
     <form id="studentForm">
         <h2 id="formTitle">Add New Student</h2>
-        <input type="number" id="id" placeholder="Student ID (e.g. 1)" required />
+        <input type="number" id="id" placeholder="Student ID" required />
         <input type="text" id="name" placeholder="Full Name" required />
+        <input type="email" id="email" placeholder="Email Address" required />
         <input type="number" id="age" placeholder="Age" required />
         <input type="text" id="course" placeholder="Course Name" required />
 
@@ -21,8 +22,24 @@
         <button type="button" id="cancelEditBtn" onclick="cancelEdit()" style="display:none; background:#6c757d;">Cancel Edit</button>
     </form>
 
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3>Course Statistics</h3>
+        <ul id="summaryList" style="list-style-type: none; padding: 0;"></ul>
+        <a href="/api/students/export" download>
+            <button style="background: #28a745; margin-top: 10px;">Download CSV Export</button>
+        </a>
+    </div>
+
     <h2>Enrolled Students</h2>
-    <input type="text" id="searchInput" placeholder="Search by Name, Course, or ID..." style="margin-bottom: 15px; padding: 10px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;" />
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+        <input type="text" id="searchInput" placeholder="Search..." style="flex: 1; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;" />
+
+        <select id="sortSelect" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="id">Sort by ID</option>
+            <option value="name">Sort by Name</option>
+            <option value="course">Sort by Course</option>
+        </select>
+    </div>
 
     <ul id="studentList"></ul>
 

@@ -7,7 +7,10 @@ namespace StudentRecords.App.Repositories
 {
     public interface IStudentRepository
     {
-        List<Student> GetAll();
-        void SaveAll(List<Student> students);
+        IEnumerable<Student> GetAll();
+        Student GetById(int id);
+        void Add(Student student);
+        void Update(Student student);
+        void Delete(int id);
     }
 }

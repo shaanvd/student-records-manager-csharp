@@ -1,115 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Xml.Linq;
-using StudentRecords.App.Exceptions;
+﻿using StudentRecords.App.Exceptions;
 using StudentRecords.App.Models;
 using StudentRecords.App.Repositories;
-using StudentRecords.App.Logging;
+using System;
+using System.Collections.Generic;
 
-namespace StudentRecords.App.Services
+namespace StudentRecords.App.Services;
+
+public class StudentService
 {
-    public class StudentService
+    private readonly IStudentRepository _repository;
+
+    public StudentService(IStudentRepository repository)
     {
-        private readonly IStudentRepository _repository;
-        private readonly List<Student> _students;
-        private readonly ILogger _logger;
+        _repository = repository;
+    }
 
-        public StudentService(IStudentRepository repository, ILogger logger)
+    public IEnumerable<Student> GetAll()
+    {
+        return _repository.GetAll();
+    }
+
+    public Student GetById(int id)
+    {
+        var student = _repository.GetById(id);
+        if (student == null) throw new StudentNotFoundException($"Student with ID {id} not found.");
+        return student;
+    }
+
+    public void AddStudent(int id, string name, int age, string course, string email = "")
+    {
+        if (_repository.GetById(id) != null) throw new InvalidOperationException("Student ID already exists.");
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty.");
+        if (string.IsNullOrWhiteSpace(course)) throw new ArgumentException("Course cannot be empty.");
+
+        _repository.Add(new Student { Id = id, Name = name, Age = age, Course = course, Email = email });
+    }
+
+    public void UpdateStudent(int id, string name, int age, string course, string email = "")
+    {
+        var existing = GetById(id);
+        existing.Name = name;
+        existing.Age = age;
+        existing.Course = course;
+        existing.Email = email;
+
+        _repository.Update(existing);
+    }
+
+    public void DeleteStudent(int id)
+    {
+        GetById(id); // Throws if not found
+        _repository.Delete(id);
+    }
+
+    public IEnumerable<Student> GetStudents(string search = "", string sortBy = "id")
+    {
+        var query = _repository.GetAll();
+
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            _students = repository.GetAll();
-            _repository = repository;
-            _logger = logger;
+            query = query.Where(s =>
+                s.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                s.Course.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                s.Id.ToString().Contains(search));
         }
 
-        public IReadOnlyList<Student> GetAll() => _students.AsReadOnly();
-
-        public IReadOnlyList<Student> SearchByName(string partialName)
+        return sortBy.ToLower() switch
         {
-            if (string.IsNullOrWhiteSpace(partialName))
-                return GetAll();
+            "name" => query.OrderBy(s => s.Name),
+            "course" => query.OrderBy(s => s.Course),
+            "age" => query.OrderBy(s => s.Age),
+            _ => query.OrderBy(s => s.Id)
+        };
+    }
 
-            var results = _students.Where(s => s.Name.Contains(partialName, StringComparison.OrdinalIgnoreCase));
-
-            return results.ToList().AsReadOnly();
-        }
-
-        public IReadOnlyList<Student> GetStudentsSorted(string sortBy)
-        {
-            var sortedResults = sortBy.ToLower() switch
-            {
-                "name" => _students.OrderBy(s => s.Name),
-                "age" => _students.OrderBy(s => s.Age),
-                "course" => _students.OrderBy(s => s.Course),
-                _ => _students.OrderBy(s => s.Id) 
-            };
-
-            return sortedResults.ToList().AsReadOnly();
-        }
-
-        public Student GetById(int id)
-        {
-            var student = _students.FirstOrDefault(s => s.Id == id);
-
-            if (student == null)
-            {
-                _logger.LogError($"Lookup failed. Student ID {id} was not found in the database.");
-                throw new StudentNotFoundException(id);
-            }
-
-            return student;
-        }
-
-        public void AddStudent(int id, string name, int age, string course)
-        {
-            var student = new Student
-            {
-                Id = id,
-                Name = name.Trim(),
-                Age = age,
-                Course = course.Trim()
-            };
-
-            student.Validate();
-
-            if (_students.Any(s => s.Id == id))
-            {
-                _logger.LogError($"Failed to add student. ID {id} already exists in the system.");
-                throw new InvalidOperationException($"Student ID {id} already exists.");
-            }
-
-            _students.Add(student);
-            Save();
-
-            _logger.LogInfo($"Successfully added student: {name} (ID: {id}) to the course {course}.");
-        }
-
-        public void UpdateStudent(int id, string name, int age, string course)
-        {
-            Student student = GetById(id);
-
-            student.Name = name.Trim();
-            student.Age = age;
-            student.Course = course.Trim();
-
-            student.Validate();
-
-            Save();
-            _logger.LogInfo($"Successfully updated record for student ID: {id}. New name: {student.Name}.");
-        }
-        
-
-        public void DeleteStudent(int id)
-        {
-            Student student = GetById(id);
-            _students.Remove(student);
-            Save();
-
-            _logger.LogInfo($"Permanently deleted student ID: {id} from the database.");
-        }
-
-        private void Save() => _repository.SaveAll(_students);
-
+    public Dictionary<string, int> GetCourseSummary()
+    {
+        return _repository.GetAll()
+            .GroupBy(s => s.Course)
+            .ToDictionary(g => g.Key, g => g.Count());
     }
 }

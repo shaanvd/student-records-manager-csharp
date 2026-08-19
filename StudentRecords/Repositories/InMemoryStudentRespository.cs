@@ -1,32 +1,28 @@
 ﻿using StudentRecords.App.Models;
-using StudentRecords.App.Repositories;
-
+using System.Collections.Generic;
+using System.Linq;
 
 namespace StudentRecords.App.Repositories;
 
 public class InMemoryStudentRepository : IStudentRepository
 {
-    private List<Student> _students = new();
+    private readonly List<Student> _students = new();
 
-    public List<Student> GetAll()
+    public IEnumerable<Student> GetAll() => _students;
+
+    public Student GetById(int id) => _students.FirstOrDefault(s => s.Id == id)!;
+
+    public void Add(Student student) => _students.Add(student);
+
+    public void Update(Student student)
     {
-        return _students.Select(s => new Student
-        {
-            Id = s.Id,
-            Name = s.Name,
-            Age = s.Age,
-            Course = s.Course
-        }).ToList();
+        var index = _students.FindIndex(s => s.Id == student.Id);
+        if (index != -1) _students[index] = student;
     }
 
-    public void SaveAll(List<Student> students)
+    public void Delete(int id)
     {
-        _students = students.Select(s => new Student
-        {
-            Id = s.Id,
-            Name = s.Name,
-            Age = s.Age,
-            Course = s.Course
-        }).ToList();
+        var student = GetById(id);
+        if (student != null) _students.Remove(student);
     }
 }
