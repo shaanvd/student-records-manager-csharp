@@ -1,27 +1,33 @@
 ﻿const apiUrl = '/api/students';
 let editingStudentId = null;
 
+
 async function updateView() {
     const search = document.getElementById('searchInput').value;
     const sort = document.getElementById('sortSelect').value;
 
     try {
+ 
         const response = await fetch(`${apiUrl}?search=${encodeURIComponent(search)}&sortBy=${sort}`);
         window.studentData = await response.json();
         renderStudents(window.studentData);
 
         const summaryResponse = await fetch(`${apiUrl}/summary`);
-        const summaryData = await summaryResponse.json();
-
-        const summaryList = document.getElementById('summaryList');
-        summaryList.innerHTML = '';
-        for (const [course, count] of Object.entries(summaryData)) {
-            summaryList.innerHTML += `<li><strong>${course}:</strong> ${count} student(s)</li>`;
+        if (summaryResponse.ok) {
+            const summaryData = await summaryResponse.json();
+            const summaryList = document.getElementById('summaryList');
+            if (summaryList) {
+                summaryList.innerHTML = '';
+                for (const [course, count] of Object.entries(summaryData)) {
+                    summaryList.innerHTML += `<li><strong>${course}:</strong> ${count} student(s)</li>`;
+                }
+            }
         }
     } catch (error) {
         console.error('Error updating view:', error);
     }
 }
+
 
 function renderStudents(studentsToRender) {
     const list = document.getElementById('studentList');
@@ -35,7 +41,7 @@ function renderStudents(studentsToRender) {
     studentsToRender.forEach(s => {
         list.innerHTML += `
             <li>
-                <span><strong>ID ${s.id}:</strong> ${s.name} (${s.age} yrs) <br> <small>${s.email}</small> - ${s.course}</span>
+                <span><strong>ID ${s.id}:</strong> ${s.name} (${s.age} yrs) <br> <small>${s.email || ''}</small> - ${s.course}</span>
                 <div>
                     <button onclick="editStudent(${s.id})" style="background:#ffc107; color:#000; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:5px;">Edit</button>
                     <button class="delete-btn" onclick="deleteStudent(${s.id})">Delete</button>
@@ -45,8 +51,10 @@ function renderStudents(studentsToRender) {
     });
 }
 
+
 document.getElementById('searchInput').addEventListener('input', updateView);
 document.getElementById('sortSelect').addEventListener('change', updateView);
+
 
 function editStudent(id) {
     const student = window.studentData.find(s => s.id === id);
@@ -54,7 +62,7 @@ function editStudent(id) {
         document.getElementById('id').value = student.id;
         document.getElementById('id').disabled = true;
         document.getElementById('name').value = student.name;
-        document.getElementById('email').value = student.email;
+        document.getElementById('email').value = student.email || '';
         document.getElementById('age').value = student.age;
         document.getElementById('course').value = student.course;
 
@@ -96,7 +104,7 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
 
         if (response.ok) {
             cancelEdit();
-            loadStudents();
+            updateView(); 
         } else {
             alert('Error updating student.');
         }
@@ -109,13 +117,14 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
 
         if (response.ok) {
             document.getElementById('studentForm').reset();
-            loadStudents();
+            updateView(); 
         } else {
             const errText = await response.text();
             alert('Error: ' + errText);
         }
     }
 });
+
 
 async function deleteStudent(id) {
     if (!confirm(`Are you sure you want to delete Student ${id}?`)) return;
@@ -125,11 +134,10 @@ async function deleteStudent(id) {
     });
 
     if (response.ok) {
-        loadStudents();
+        updateView(); 
     } else {
         alert('Failed to delete student.');
     }
 }
 
-// Initial Data Load
-loadStudents();
+updateView();
