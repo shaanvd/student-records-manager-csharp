@@ -61,15 +61,15 @@ public class StudentsController : ControllerBase
         try
         {
             _service.UpdateStudent(id, request.Name, request.Age, request.Course);
-            return NoContent(); // Returns HTTP 204 No Content (Success, nothing to return)
+            return NoContent();
         }
         catch (StudentNotFoundException ex)
         {
-            return NotFound(ex.Message); // Returns HTTP 404 if student doesn't exist
+            return NotFound(ex.Message);
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(ex.Message); // Returns HTTP 400 if validation fails
+            return BadRequest(ex.Message);
         }
     }
 
@@ -79,11 +79,11 @@ public class StudentsController : ControllerBase
         try
         {
             _service.DeleteStudent(id);
-            return NoContent(); // Returns HTTP 204 No Content on successful deletion
+            return NoContent();
         }
         catch (StudentNotFoundException ex)
         {
-            return NotFound(ex.Message); // Returns HTTP 404 if student doesn't exist
+            return NotFound(ex.Message);
         }
     }
 }

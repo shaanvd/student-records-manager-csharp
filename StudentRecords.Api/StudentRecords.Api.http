@@ -20,7 +20,7 @@ Content-Type: application/json
 ###
 
 ### Get student by ID (Test the GET by ID route)
-GET {{StudentRecords.Api_HostAddress}}/api/students/2
+GET {{StudentRecords.Api_HostAddress}}/api/students/1
 Accept: application/json
 
 ###Update an existing student (PUT)
@@ -37,4 +37,4 @@ Content-Type: application/json
 ###
 
 ###Delete a student (DELETE)
-DELETE {{StudentRecords.Api_HostAddress}}/api/students/1
+DELETE {{StudentRecords.Api_HostAddress}}/api/students/2
