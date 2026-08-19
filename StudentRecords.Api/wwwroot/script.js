@@ -96,6 +96,7 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
     };
 
     if (editingStudentId !== null) {
+
         const response = await fetch(`${apiUrl}/${editingStudentId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -104,11 +105,14 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
 
         if (response.ok) {
             cancelEdit();
-            updateView(); 
+            updateView();
         } else {
-            alert('Error updating student.');
+
+            const errText = await response.text();
+            alert('Update Failed: ' + errText);
         }
     } else {
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -117,14 +121,14 @@ document.getElementById('studentForm').addEventListener('submit', async (e) => {
 
         if (response.ok) {
             document.getElementById('studentForm').reset();
-            updateView(); 
+            updateView();
         } else {
+
             const errText = await response.text();
-            alert('Error: ' + errText);
+            alert('Creation Failed: ' + errText);
         }
     }
 });
-
 
 async function deleteStudent(id) {
     if (!confirm(`Are you sure you want to delete Student ${id}?`)) return;

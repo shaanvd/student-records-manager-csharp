@@ -11,7 +11,7 @@
     <h1>Student Records Management</h1>
 
     <form id="studentForm">
-        <h2 id="formTitle">Add New Student</h2>
+        <h2 id="formTitle">Add/Edit New Student</h2>
         <input type="number" id="id" placeholder="Student ID" required />
         <input type="text" id="name" placeholder="Full Name" required />
         <input type="email" id="email" placeholder="Email Address" required />
@@ -21,14 +21,6 @@
         <button type="submit" id="saveBtn">Save Student</button>
         <button type="button" id="cancelEditBtn" onclick="cancelEdit()" style="display:none; background:#6c757d;">Cancel Edit</button>
     </form>
-
-    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <h3>Course Statistics</h3>
-        <ul id="summaryList" style="list-style-type: none; padding: 0;"></ul>
-        <a href="/api/students/export" download>
-            <button style="background: #28a745; margin-top: 10px;">Download CSV Export</button>
-        </a>
-    </div>
 
     <h2>Enrolled Students</h2>
     <div style="display: flex; gap: 10px; margin-bottom: 15px;">
@@ -42,6 +34,14 @@
     </div>
 
     <ul id="studentList"></ul>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3>Course Statistics</h3>
+        <ul id="summaryList" style="list-style-type: none; padding: 0;"></ul>
+        <a href="/api/students/export" download>
+            <button style="background: #28a745; margin-top: 10px;">Download CSV Export</button>
+        </a>
+    </div>
 
     <script src="script.js" defer></script>
 </body>

@@ -32,13 +32,30 @@ public class StudentService
         if (_repository.GetById(id) != null) throw new InvalidOperationException("Student ID already exists.");
         if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty.");
         if (string.IsNullOrWhiteSpace(course)) throw new ArgumentException("Course cannot be empty.");
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email cannot be empty.");
+
+        var allStudents = _repository.GetAll();
+        if (allStudents.Any(s => s.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"The email '{email}' is already in use.");
+        }
 
         _repository.Add(new Student { Id = id, Name = name, Age = age, Course = course, Email = email });
     }
-
     public void UpdateStudent(int id, string name, int age, string course, string email = "")
     {
         var existing = GetById(id);
+
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name cannot be empty.");
+        if (string.IsNullOrWhiteSpace(course)) throw new ArgumentException("Course cannot be empty.");
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email cannot be empty.");
+
+        var allStudents = _repository.GetAll();
+        if (allStudents.Any(s => s.Id != id && s.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"The email '{email}' is already in use by another student.");
+        }
+
         existing.Name = name;
         existing.Age = age;
         existing.Course = course;
