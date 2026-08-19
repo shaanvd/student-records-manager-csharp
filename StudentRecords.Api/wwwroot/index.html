@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Records Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Student Records Management</h1>
+
+    <form id="studentForm">
+        <h2 id="formTitle">Add New Student</h2>
+        <input type="number" id="id" placeholder="Student ID (e.g. 1)" required />
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="number" id="age" placeholder="Age" required />
+        <input type="text" id="course" placeholder="Course Name" required />
+
+        <button type="submit" id="saveBtn">Save Student</button>
+        <button type="button" id="cancelEditBtn" onclick="cancelEdit()" style="display:none; background:#6c757d;">Cancel Edit</button>
+    </form>
+
+    <h2>Enrolled Students</h2>
+    <input type="text" id="searchInput" placeholder="Search by Name, Course, or ID..." style="margin-bottom: 15px; padding: 10px; width: 100%; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;" />
+
+    <ul id="studentList"></ul>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

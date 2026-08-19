@@ -1,0 +1,133 @@
+﻿const apiUrl = '/api/students';
+let editingStudentId = null;
+
+async function loadStudents() {
+    try {
+        const response = await fetch(apiUrl);
+        const students = await response.json();
+
+        window.studentData = students;
+        renderStudents(window.studentData);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function renderStudents(studentsToRender) {
+    const list = document.getElementById('studentList');
+    list.innerHTML = '';
+
+    if (studentsToRender.length === 0) {
+        list.innerHTML = '<li>No students match your search.</li>';
+        return;
+    }
+
+    studentsToRender.forEach(s => {
+        list.innerHTML += `
+            <li>
+                <span><strong>ID ${s.id}:</strong> ${s.name} (${s.age} yrs) - ${s.course}</span>
+                <div>
+                    <button onclick="editStudent(${s.id})" style="background:#ffc107; color:#000; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:5px;">Edit</button>
+                    <button class="delete-btn" onclick="deleteStudent(${s.id})">Delete</button>
+                </div>
+            </li>
+        `;
+    });
+}
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+
+    const filteredStudents = window.studentData.filter(s =>
+        s.name.toLowerCase().includes(searchTerm) ||
+        s.course.toLowerCase().includes(searchTerm) ||
+        s.id.toString().includes(searchTerm)
+    );
+
+    renderStudents(filteredStudents);
+});
+
+function editStudent(id) {
+    const student = window.studentData.find(s => s.id === id);
+    if (student) {
+        document.getElementById('id').value = student.id;
+        document.getElementById('id').disabled = true;
+        document.getElementById('name').value = student.name;
+        document.getElementById('age').value = student.age;
+        document.getElementById('course').value = student.course;
+
+        document.getElementById('formTitle').innerText = 'Edit Student';
+        document.getElementById('saveBtn').innerText = 'Update Student';
+        document.getElementById('cancelEditBtn').style.display = 'inline-block';
+
+        editingStudentId = id;
+    }
+}
+
+function cancelEdit() {
+    document.getElementById('studentForm').reset();
+    document.getElementById('id').disabled = false;
+    document.getElementById('formTitle').innerText = 'Add New Student';
+    document.getElementById('saveBtn').innerText = 'Save Student';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+
+    editingStudentId = null;
+}
+
+document.getElementById('studentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+        id: parseInt(document.getElementById('id').value),
+        name: document.getElementById('name').value,
+        age: parseInt(document.getElementById('age').value),
+        course: document.getElementById('course').value
+    };
+
+    if (editingStudentId !== null) {
+        const response = await fetch(`${apiUrl}/${editingStudentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            cancelEdit();
+            loadStudents();
+            document.getElementById('searchInput').value = '';
+        } else {
+            alert('Error updating student.');
+        }
+    } else {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            document.getElementById('studentForm').reset();
+            loadStudents();
+            document.getElementById('searchInput').value = '';
+        } else {
+            const errText = await response.text();
+            alert(errText);
+        }
+    }
+});
+
+async function deleteStudent(id) {
+    if (!confirm(`Are you sure you want to delete Student ${id}?`)) return;
+
+    const response = await fetch(`${apiUrl}/${id}`, {
+        method: 'DELETE'
+    });
+
+    if (response.ok) {
+        loadStudents();
+    } else {
+        alert('Failed to delete student.');
+    }
+}
+
+loadStudents();
