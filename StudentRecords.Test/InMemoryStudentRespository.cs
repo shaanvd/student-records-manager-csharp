@@ -1,10 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using StudentRecords.App.Models;
+using StudentRecords.App.Repositories;
 
-namespace StudentRecords.Test
+
+namespace StudentRecords.Tests;
+
+public class InMemoryStudentRepository : IStudentRepository
 {
-    internal class InMemoryStudentRespository
+    private List<Student> _students = new();
+
+    public List<Student> GetAll()
     {
+        return _students.Select(s => new Student
+        {
+            Id = s.Id,
+            Name = s.Name,
+            Age = s.Age,
+            Course = s.Course
+        }).ToList();
+    }
+
+    public void SaveAll(List<Student> students)
+    {
+        _students = students.Select(s => new Student
+        {
+            Id = s.Id,
+            Name = s.Name,
+            Age = s.Age,
+            Course = s.Course
+        }).ToList();
     }
 }
